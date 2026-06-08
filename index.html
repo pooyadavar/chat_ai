@@ -1,13 +1,28 @@
 <!doctype html>
-<html lang="en">
+<html lang="fa" dir="rtl">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>chat_ai</title>
+    <title>Raya Widget — Demo</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        margin: 0;
+        padding: 40px;
+        background: #f0f2f5;
+        min-height: 100vh;
+      }
+      h1 { color: #1a1a2e; }
+      p { color: #555; max-width: 520px; line-height: 1.7; }
+    </style>
   </head>
   <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <h1>صفحه نمونه — ویجت رایا</h1>
+    <p>
+      این صفحه شبیه‌سازی یک وب‌سایت میزبان است. ویجت چت در گوشه پایین راست بارگذاری
+      شده و کاملاً از استایل‌های این صفحه جدا است (Shadow DOM).
+    </p>
+    <script type="module" src="/src/main.tsx" data-api-key="demo-key-123"></script>
   </body>
 </html>
