@@ -355,10 +355,36 @@
 
 .messageRowUser {
   justify-content: flex-start;
+  animation: rayaMsgInUser 0.38s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
 .messageRowBot {
   justify-content: flex-end;
+  animation: rayaMsgInBot 0.38s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes rayaMsgInUser {
+  from {
+    opacity: 0;
+    transform: translateY(12px) translateX(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) translateX(0);
+  }
+}
+
+@keyframes rayaMsgInBot {
+  from {
+    opacity: 0;
+    transform: translateY(12px) translateX(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) translateX(0);
+  }
 }
 
 .bubble {
@@ -384,20 +410,59 @@
 }
 
 .bubbleTyping {
-  color: var(--raya-text-muted);
-  letter-spacing: 2px;
+  padding: 14px 18px;
 }
 
-.cursor {
-  display: inline-block;
-  animation: rayaBlink 0.8s step-end infinite;
-  margin-right: 2px;
-  font-weight: 300;
+.bubbleReveal {
+  animation: rayaBubbleReveal 0.42s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
-@keyframes rayaBlink {
-  50% {
+@keyframes rayaBubbleReveal {
+  from {
     opacity: 0;
+    transform: scale(0.94) translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.typingDots {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 5px;
+  height: 18px;
+}
+
+.typingDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--raya-text-muted);
+  animation: rayaDotBounce 1.2s ease-in-out infinite;
+}
+
+.typingDot:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.typingDot:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes rayaDotBounce {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.45;
+  }
+
+  30% {
+    transform: translateY(-6px);
+    opacity: 1;
   }
 }
 
@@ -447,7 +512,25 @@
   color: #fff;
   cursor: pointer;
   flex-shrink: 0;
-  transition: background 0.15s ease, opacity 0.15s ease;
+  transition: background 0.15s ease, opacity 0.15s ease, transform 0.15s ease;
+}
+
+.sendButtonPulse {
+  animation: rayaSendPulse 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes rayaSendPulse {
+  0% {
+    transform: scale(1);
+  }
+
+  45% {
+    transform: scale(0.86);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 .sendButton svg {

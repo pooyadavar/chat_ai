@@ -1,8 +1,8 @@
 import { useCallback, useRef } from 'preact/hooks'
 import type { ChatMessage } from '../types'
 
-const TYPING_DELAY_MS = 800
-const WORD_INTERVAL_MS = 100
+const TYPING_APPEAR_DELAY_MS = 220
+const TYPING_DURATION_MS = 1200
 
 function createId(): string {
   return `msg-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
@@ -11,17 +11,17 @@ function createId(): string {
 export function useMessageStream(
   setMessages: (updater: (prev: ChatMessage[]) => ChatMessage[]) => void,
 ) {
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const appearRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const replyRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const clearTimers = useCallback(() => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current)
-      timerRef.current = null
+    if (appearRef.current) {
+      clearTimeout(appearRef.current)
+      appearRef.current = null
     }
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current)
-      timeoutRef.current = null
+    if (replyRef.current) {
+      clearTimeout(replyRef.current)
+      replyRef.current = null
     }
   }, [])
 
@@ -39,44 +39,25 @@ export function useMessageStream(
       const typingMessage: ChatMessage = {
         id: botId,
         role: 'bot',
-        content: '...',
+        content: '',
         isTyping: true,
       }
 
-      setMessages((prev) => [...prev, userMessage, typingMessage])
+      setMessages((prev) => [...prev, userMessage])
 
-      timeoutRef.current = setTimeout(() => {
-        const words = botResponse.split(' ')
-        let index = 0
+      appearRef.current = setTimeout(() => {
+        setMessages((prev) => [...prev, typingMessage])
+      }, TYPING_APPEAR_DELAY_MS)
 
+      replyRef.current = setTimeout(() => {
         setMessages((prev) =>
           prev.map((msg) =>
             msg.id === botId
-              ? { ...msg, content: '', isTyping: false, isStreaming: true }
+              ? { ...msg, content: botResponse, isTyping: false }
               : msg,
           ),
         )
-
-        timerRef.current = setInterval(() => {
-          index += 1
-          const partial = words.slice(0, index).join(' ')
-
-          setMessages((prev) =>
-            prev.map((msg) =>
-              msg.id === botId ? { ...msg, content: partial } : msg,
-            ),
-          )
-
-          if (index >= words.length) {
-            clearTimers()
-            setMessages((prev) =>
-              prev.map((msg) =>
-                msg.id === botId ? { ...msg, isStreaming: false } : msg,
-              ),
-            )
-          }
-        }, WORD_INTERVAL_MS)
-      }, TYPING_DELAY_MS)
+      }, TYPING_APPEAR_DELAY_MS + TYPING_DURATION_MS)
     },
     [clearTimers, setMessages],
   )

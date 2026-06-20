@@ -10,7 +10,7 @@ interface ChatWindowProps {
   isOpen: boolean
   view: 'faq' | 'chat'
   messages: ChatMessage[]
-  isStreaming: boolean
+  isReplying: boolean
   onClose: () => void
   onNewChat: () => void
   onFaqSelect: (faq: FaqItem) => void
@@ -22,7 +22,7 @@ export function ChatWindow({
   isOpen,
   view,
   messages,
-  isStreaming,
+  isReplying,
   onClose,
   onNewChat,
   onFaqSelect,
@@ -84,7 +84,7 @@ export function ChatWindow({
         </div>
       </div>
 
-      <ChatInput onSend={onSend} disabled={isStreaming} />
+      <ChatInput onSend={onSend} disabled={isReplying} />
     </div>
   )
 }

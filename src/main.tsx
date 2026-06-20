@@ -2,7 +2,7 @@ import { render } from 'preact'
 import { App } from './App'
 import fontStyles from './styles/fonts.css?inline'
 import appStyles from './styles.module.css?inline'
-import { DEFAULT_CONFIG, type RayaConfig, type RayaWidgetConfig } from './types'
+import { DEFAULT_CONFIG, type FaqItem, type RayaConfig, type RayaWidgetConfig } from './types'
 
 const INIT_API = 'https://api.raya.ai/v1/widget/init'
 
@@ -35,17 +35,32 @@ function pickDefined<T extends Record<string, unknown>>(source: T | null | undef
   ) as Partial<T>
 }
 
+function normalizeFaqs(faqs: FaqItem[] | undefined): FaqItem[] | undefined {
+  if (!faqs) return undefined
+
+  return faqs.map((faq, index) => ({
+    id: faq.id || `faq-${index + 1}`,
+    title: faq.title,
+    description: faq.description ?? '',
+    botResponse: faq.botResponse,
+  }))
+}
+
 /** Priority: defaults → window.RAYA_CONFIG → API response */
 export function mergeConfig(
   defaults: RayaWidgetConfig,
   local?: Partial<RayaConfig> | null,
   remote?: Partial<RayaConfig> | null,
 ): RayaWidgetConfig {
+  const localClean = pickDefined(local)
+  const remoteClean = pickDefined(remote)
+
   return {
     ...defaults,
-    ...pickDefined(local),
-    ...pickDefined(remote),
+    ...localClean,
+    ...remoteClean,
     apiKey: remote?.apiKey ?? local?.apiKey ?? defaults.apiKey,
+    faqs: normalizeFaqs(remoteClean.faqs) ?? normalizeFaqs(localClean.faqs) ?? defaults.faqs,
   }
 }
 

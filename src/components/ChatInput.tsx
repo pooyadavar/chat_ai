@@ -10,6 +10,7 @@ interface ChatInputProps {
 
 export function ChatInput({ onSend, disabled }: ChatInputProps) {
   const [value, setValue] = useState('')
+  const [sentPulse, setSentPulse] = useState(false)
 
   const handleSubmit = (e: JSX.TargetedEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -17,6 +18,8 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
     if (!trimmed || disabled) return
     onSend(trimmed)
     setValue('')
+    setSentPulse(true)
+    window.setTimeout(() => setSentPulse(false), 400)
   }
 
   return (
@@ -32,7 +35,7 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
       />
       <button
         type="submit"
-        className={styles.sendButton}
+        className={`${styles.sendButton} ${sentPulse ? styles.sendButtonPulse : ''}`}
         disabled={disabled || !value.trim()}
         aria-label="ارسال پیام"
       >

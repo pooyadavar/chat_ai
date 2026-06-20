@@ -44,7 +44,7 @@ export function App({ config }: AppProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [view, setView] = useState<'faq' | 'chat'>(stored?.view ?? 'faq')
   const [messages, setMessages] = useState<ChatMessage[]>(stored?.messages ?? [])
-  const [isStreaming, setIsStreaming] = useState(false)
+  const [isReplying, setIsReplying] = useState(false)
 
   const themeStyle = useMemo(() => configToCssVars(config), [config])
 
@@ -56,8 +56,8 @@ export function App({ config }: AppProps) {
   const { sendMessage, clearTimers } = useMessageStream((updater) => {
     setMessages((prev) => {
       const next = updater(prev)
-      const streaming = next.some((m) => m.isStreaming || m.isTyping)
-      setIsStreaming(streaming)
+      const replying = next.some((m) => m.isTyping)
+      setIsReplying(replying)
       return next
     })
   })
@@ -85,7 +85,7 @@ export function App({ config }: AppProps) {
     clearTimers()
     setMessages([])
     setView('faq')
-    setIsStreaming(false)
+    setIsReplying(false)
 
     if (config.enableChatHistory) {
       clearSession(config.apiKey)
@@ -119,7 +119,7 @@ export function App({ config }: AppProps) {
         isOpen={isOpen}
         view={view}
         messages={messages}
-        isStreaming={isStreaming}
+        isReplying={isReplying}
         onClose={handleClose}
         onNewChat={handleNewChat}
         onFaqSelect={handleFaqSelect}
