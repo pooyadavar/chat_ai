@@ -2,11 +2,11 @@ import { CloseIcon, NewChatIcon } from './icons'
 import { FaqList } from './FaqList'
 import { ChatStream } from './ChatStream'
 import { ChatInput } from './ChatInput'
-import { getWelcomeGreeting } from '../utils/greeting'
-import type { ChatMessage, FaqItem } from '../types'
-import styles from '../styles/widget.module.css'
+import type { ChatMessage, FaqItem, RayaWidgetConfig } from '../types'
+import styles from '../styles.module.css'
 
 interface ChatWindowProps {
+  config: RayaWidgetConfig
   isOpen: boolean
   view: 'faq' | 'chat'
   messages: ChatMessage[]
@@ -18,6 +18,7 @@ interface ChatWindowProps {
 }
 
 export function ChatWindow({
+  config,
   isOpen,
   view,
   messages,
@@ -27,13 +28,16 @@ export function ChatWindow({
   onFaqSelect,
   onSend,
 }: ChatWindowProps) {
-  if (!isOpen) return null
-
   return (
-    <div className={styles.chatWindow} role="dialog" aria-label="چت پشتیبانی رایا">
+    <div
+      className={`${styles.chatWindow} ${isOpen ? styles.chatWindowOpen : ''}`}
+      role="dialog"
+      aria-label="چت پشتیبانی رایا"
+      aria-hidden={!isOpen}
+    >
       <header className={styles.header}>
         <div className={styles.headerInfo}>
-          <span className={styles.headerTitle}>پشتیبان هوشمند رایا</span>
+          <span className={styles.headerTitle}>{config.headerTitle}</span>
           <span className={styles.statusRow}>
             <span className={styles.statusDot} />
             <span className={styles.statusText}>آنلاین</span>
@@ -66,11 +70,9 @@ export function ChatWindow({
           aria-hidden={view !== 'faq'}
         >
           <section className={styles.welcomeSection}>
-            <h2 className={styles.welcomeTitle}>{getWelcomeGreeting()}</h2>
-            <p className={styles.welcomeSubtitle}>
-              من دستیار پشتیبان رایا هستم، چطور می‌تونم کمکتون کنم؟
-            </p>
-            <FaqList onSelect={onFaqSelect} />
+            <h2 className={styles.welcomeTitle}>{config.welcomeText}</h2>
+            <p className={styles.welcomeSubtitle}>{config.welcomeSubtitle}</p>
+            <FaqList faqs={config.faqs} onSelect={onFaqSelect} />
           </section>
         </div>
 

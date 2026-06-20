@@ -11,8 +11,9 @@
   --raya-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
   --raya-radius: 16px;
   --raya-radius-sm: 10px;
+  --raya-font-family: 'IRANSansX', Tahoma, sans-serif;
 
-  font-family: 'IRANSansX', Tahoma, sans-serif;
+  font-family: var(--raya-font-family);
   direction: rtl;
   box-sizing: border-box;
   line-height: 1.6;
@@ -27,54 +28,63 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: inherit;
+}
+
+/* ── Position variants ── */
+.positionBottomRight .launcher,
+.positionBottomRight .chatWindow {
+  right: 20px;
+  left: auto;
+}
+
+.positionBottomLeft .launcher,
+.positionBottomLeft .chatWindow {
+  left: 20px;
+  right: auto;
 }
 
 /* ── Launcher FAB ── */
 .launcher {
   position: fixed;
   bottom: 20px;
-  right: 20px;
-  z-index: 2147483646;
-  display: flex;
+  z-index: 2;
+  display: inline-grid;
+  grid-template-columns: auto 0fr;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
+  column-gap: 0;
   height: 56px;
+  padding: 0 16px;
   border: none;
   border-radius: 28px;
   background: var(--raya-primary);
   color: #fff;
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(239, 57, 78, 0.4);
+  font-family: var(--raya-font-family);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  box-shadow: 0 4px 20px color-mix(in srgb, var(--raya-primary) 40%, transparent);
   overflow: hidden;
   transition:
-    width 0.45s cubic-bezier(0.4, 0, 0.2, 1),
-    padding 0.45s cubic-bezier(0.4, 0, 0.2, 1),
-    background 0.2s ease;
+    grid-template-columns 0.42s cubic-bezier(0.4, 0, 0.2, 1),
+    column-gap 0.42s cubic-bezier(0.4, 0, 0.2, 1),
+    background 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .launcher:hover {
   background: var(--raya-primary-hover);
 }
 
-.launcherExpanded {
-  width: auto;
-  padding: 0 22px 0 18px;
-}
-
-.launcherCollapsed {
-  width: 56px;
-  min-width: 56px;
-  padding: 0;
-  display: grid;
-  place-items: center;
+.launcherWide {
+  grid-template-columns: auto 1fr;
+  column-gap: 10px;
 }
 
 .launcherIcon {
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 24px;
   height: 24px;
 }
@@ -83,39 +93,28 @@
   display: block;
 }
 
-.launcherCollapsed .launcherIcon {
-  width: 56px;
-  height: 56px;
-  grid-area: 1 / 1;
+.launcherLabelWrap {
+  overflow: hidden;
+  min-width: 0;
 }
 
 .launcherLabel {
+  display: block;
   white-space: nowrap;
-  font-size: 14px;
-  font-weight: 600;
-  opacity: 1;
-  max-width: 200px;
-  transition:
-    opacity 0.3s ease,
-    max-width 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0;
+  transition: opacity 0.15s ease;
 }
 
-.launcherCollapsed .launcherLabel {
-  position: absolute;
-  width: 0;
-  height: 0;
-  opacity: 0;
-  max-width: 0;
-  overflow: hidden;
-  pointer-events: none;
+.launcherWide .launcherLabel {
+  opacity: 1;
+  transition: opacity 0.22s ease 0.1s;
 }
 
 /* ── Chat window ── */
 .chatWindow {
   position: fixed;
   bottom: 90px;
-  right: 20px;
-  z-index: 2147483645;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   width: 400px;
@@ -126,18 +125,21 @@
   border-radius: var(--raya-radius);
   box-shadow: var(--raya-shadow);
   overflow: hidden;
-  animation: rayaSlideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(20px) scale(0.96);
+  transition:
+    opacity 0.38s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.38s cubic-bezier(0.4, 0, 0.2, 1),
+    visibility 0.38s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-@keyframes rayaSlideUp {
-  from {
-    opacity: 0;
-    transform: translateY(16px) scale(0.97);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+.chatWindowOpen {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
 }
 
 /* ── Header ── */
@@ -289,7 +291,7 @@
   background: var(--raya-bg);
   cursor: pointer;
   text-align: right;
-  font-family: inherit;
+  font-family: var(--raya-font-family);
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease,
@@ -300,7 +302,7 @@
 .faqCard:hover {
   border-color: var(--raya-primary);
   background: #fff;
-  box-shadow: 0 2px 12px rgba(239, 57, 78, 0.1);
+  box-shadow: 0 2px 12px color-mix(in srgb, var(--raya-primary) 10%, transparent);
   transform: translateY(-1px);
 }
 
@@ -416,7 +418,7 @@
   padding: 0 16px;
   border: 1px solid var(--raya-border);
   border-radius: 21px;
-  font-family: inherit;
+  font-family: var(--raya-font-family);
   font-size: 14px;
   color: var(--raya-text);
   background: var(--raya-bg-muted);
@@ -472,9 +474,22 @@
     bottom: 80px;
   }
 
+  .positionBottomRight .chatWindow,
+  .positionBottomLeft .chatWindow {
+    right: 5%;
+    left: 5%;
+  }
+
   .launcher {
     bottom: 16px;
+  }
+
+  .positionBottomRight .launcher {
     right: 16px;
+  }
+
+  .positionBottomLeft .launcher {
+    left: 16px;
   }
 
   .welcomeSection {

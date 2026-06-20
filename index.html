@@ -20,9 +20,14 @@
   <body>
     <h1>صفحه نمونه — ویجت رایا</h1>
     <p>
-      این صفحه شبیه‌سازی یک وب‌سایت میزبان است. ویجت چت در گوشه پایین راست بارگذاری
-      شده و کاملاً از استایل‌های این صفحه جدا است (Shadow DOM).
+      این صفحه شبیه‌سازی یک وب‌سایت میزبان است. ابتدا فایل تنظیمات مشتری
+      (<code>customer/raya.config.js</code>) و سپس خود ویجت بارگذاری می‌شود.
     </p>
+
+    <!-- 1. Config — مشتری این فایل را ویرایش می‌کند -->
+    <script src="/customer/raya.config.js"></script>
+
+    <!-- 2. Widget — برنامه اصلی -->
     <script type="module" src="/src/main.tsx" data-api-key="demo-key-123"></script>
   </body>
 </html>

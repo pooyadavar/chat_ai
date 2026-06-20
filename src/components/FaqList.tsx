@@ -1,16 +1,16 @@
-import { FAQ_ITEMS } from '../data/faqs'
 import type { FaqItem } from '../types'
 import { ChevronLeftIcon } from './icons'
-import styles from '../styles/widget.module.css'
+import styles from '../styles.module.css'
 
 interface FaqListProps {
+  faqs: FaqItem[]
   onSelect: (faq: FaqItem) => void
 }
 
-export function FaqList({ onSelect }: FaqListProps) {
+export function FaqList({ faqs, onSelect }: FaqListProps) {
   return (
     <div className={styles.faqList}>
-      {FAQ_ITEMS.map((faq) => (
+      {faqs.map((faq) => (
         <button
           key={faq.id}
           type="button"

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'preact/hooks'
 import type { ChatMessage } from '../types'
-import styles from '../styles/widget.module.css'
+import styles from '../styles.module.css'
 
 interface ChatStreamProps {
   messages: ChatMessage[]

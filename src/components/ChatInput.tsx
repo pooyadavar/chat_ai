@@ -1,7 +1,7 @@
 import { useState } from 'preact/hooks'
 import type { JSX } from 'preact'
 import { SendIcon } from './icons'
-import styles from '../styles/widget.module.css'
+import styles from '../styles.module.css'
 
 interface ChatInputProps {
   onSend: (text: string) => void
