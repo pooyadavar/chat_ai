@@ -4,7 +4,7 @@ import fontStyles from './styles/fonts.css?inline'
 import appStyles from './styles.module.css?inline'
 import { DEFAULT_CONFIG, type FaqItem, type RayaConfig, type RayaWidgetConfig } from './types'
 
-const INIT_API = 'https://api.raya.ai/v1/widget/init'
+const DEFAULT_API_BASE = 'http://localhost:3001'
 
 const HOST_STYLES = `
 :host {
@@ -14,6 +14,8 @@ const HOST_STYLES = `
   z-index: 999999;
 }
 `
+
+const FONT_STYLE_ID = 'raya-widget-fonts'
 
 function getCurrentScript(): HTMLScriptElement | null {
   if (document.currentScript instanceof HTMLScriptElement) {
@@ -64,9 +66,13 @@ export function mergeConfig(
   }
 }
 
-async function fetchRemoteConfig(apiKey: string): Promise<Partial<RayaConfig> | null> {
+async function fetchRemoteConfig(
+  apiBaseUrl: string,
+  apiKey: string,
+): Promise<Partial<RayaConfig> | null> {
   try {
-    const url = `${INIT_API}?apiKey=${encodeURIComponent(apiKey)}`
+    const base = apiBaseUrl.replace(/\/$/, '')
+    const url = `${base}/v1/widget/init?apiKey=${encodeURIComponent(apiKey)}`
     const response = await fetch(url, {
       method: 'GET',
       headers: { Accept: 'application/json' },
@@ -80,8 +86,6 @@ async function fetchRemoteConfig(apiKey: string): Promise<Partial<RayaConfig> | 
     return null
   }
 }
-
-const FONT_STYLE_ID = 'raya-widget-fonts'
 
 /** @font-face inside Shadow DOM is unreliable — register fonts on document */
 function injectGlobalFonts(): void {
@@ -121,14 +125,17 @@ async function bootstrap(): Promise<void> {
   const apiKey =
     scriptApiKey ?? localConfig?.apiKey ?? DEFAULT_CONFIG.apiKey
 
+  const apiBaseUrl =
+    localConfig?.apiBaseUrl ?? DEFAULT_CONFIG.apiBaseUrl ?? DEFAULT_API_BASE
+
   let remoteConfig: Partial<RayaConfig> | null = null
 
   if (apiKey) {
-    remoteConfig = await fetchRemoteConfig(apiKey)
+    remoteConfig = await fetchRemoteConfig(apiBaseUrl, apiKey)
   }
 
   const config = mergeConfig(
-    { ...DEFAULT_CONFIG, apiKey },
+    { ...DEFAULT_CONFIG, apiKey, apiBaseUrl },
     localConfig,
     remoteConfig,
   )

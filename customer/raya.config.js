@@ -1,4 +1,6 @@
 window.RAYA_CONFIG = {
+  apiKey: 'demo-key-123',
+  apiBaseUrl: 'http://localhost:3001',
   primaryColor: '#CB2957',
   position: 'bottom-right',
   fontFamily: "'IRANSansX', Tahoma, sans-serif",

@@ -53,14 +53,20 @@ export function App({ config }: AppProps) {
       ? styles.positionBottomLeft
       : styles.positionBottomRight
 
-  const { sendMessage, clearTimers } = useMessageStream((updater) => {
-    setMessages((prev) => {
-      const next = updater(prev)
-      const replying = next.some((m) => m.isTyping)
-      setIsReplying(replying)
-      return next
-    })
-  })
+  const { sendMessage, clearTimers } = useMessageStream(
+    (updater) => {
+      setMessages((prev) => {
+        const next = updater(prev)
+        const replying = next.some((m) => m.isTyping)
+        setIsReplying(replying)
+        return next
+      })
+    },
+    {
+      apiBaseUrl: config.apiBaseUrl,
+      fallbackReply: config.defaultBotResponse,
+    },
+  )
 
   useEffect(() => {
     if (!config.enableChatHistory) return
@@ -103,9 +109,9 @@ export function App({ config }: AppProps) {
   const handleSend = useCallback(
     (text: string) => {
       setView('chat')
-      sendMessage(text, config.defaultBotResponse)
+      sendMessage(text)
     },
-    [sendMessage, config.defaultBotResponse],
+    [sendMessage],
   )
 
   return (

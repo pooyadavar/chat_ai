@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'preact/hooks'
 import type { ChatMessage } from '../types'
+import { MarkdownContent } from './MarkdownContent'
 import { TypingIndicator } from './TypingIndicator'
 import styles from '../styles.module.css'
 
@@ -30,7 +31,13 @@ export function ChatStream({ messages }: ChatStreamProps) {
               msg.role === 'bot' && !msg.isTyping ? styles.bubbleReveal : ''
             }`}
           >
-            {msg.isTyping ? <TypingIndicator /> : msg.content}
+            {msg.isTyping ? (
+              <TypingIndicator />
+            ) : msg.role === 'bot' ? (
+              <MarkdownContent content={msg.content} />
+            ) : (
+              msg.content
+            )}
           </div>
         </div>
       ))}

@@ -23,6 +23,17 @@ export default defineConfig(({ command }) => ({
   plugins: [preact(), command === 'build' ? copyCustomerConfig() : undefined].filter(
     Boolean,
   ),
+  optimizeDeps: {
+    include: ['marked', 'dompurify'],
+  },
+  server: {
+    proxy: {
+      '/v1': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+      },
+    },
+  },
   build:
     command === 'build'
       ? {

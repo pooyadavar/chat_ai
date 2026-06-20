@@ -29,6 +29,7 @@ export interface RayaConfig {
   headerTitle?: string
   faqs?: FaqItem[]
   defaultBotResponse?: string
+  apiBaseUrl?: string
 }
 
 /** Fully resolved widget configuration after merge */
@@ -44,6 +45,7 @@ export interface RayaWidgetConfig {
   headerTitle: string
   faqs: FaqItem[]
   defaultBotResponse: string
+  apiBaseUrl: string
 }
 
 export const DEFAULT_CONFIG: RayaWidgetConfig = {
@@ -58,6 +60,7 @@ export const DEFAULT_CONFIG: RayaWidgetConfig = {
   headerTitle: 'پشتیبان هوشمند رایا',
   faqs: FAQ_ITEMS,
   defaultBotResponse: DEFAULT_BOT_RESPONSE,
+  apiBaseUrl: 'http://localhost:3001',
 }
 
 declare global {
