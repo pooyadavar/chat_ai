@@ -1,21 +1,19 @@
-import type { ChatMessage } from '../types'
+function getStorageKey(apiBaseUrl: string): string {
+  return `raya-widget-session-${apiBaseUrl.replace(/[^a-z0-9]+/gi, '-')}`
+}
 
 export interface StoredSession {
-  messages: ChatMessage[]
+  messages: import('../types').ChatMessage[]
   view: 'faq' | 'chat'
 }
 
-function getStorageKey(apiKey: string | null): string {
-  return `raya-widget-session${apiKey ? `-${apiKey}` : ''}`
-}
-
-function sanitizeMessages(messages: ChatMessage[]): ChatMessage[] {
+function sanitizeMessages(messages: import('../types').ChatMessage[]) {
   return messages.map(({ id, role, content }) => ({ id, role, content }))
 }
 
-export function loadSession(apiKey: string | null): StoredSession | null {
+export function loadSession(apiBaseUrl: string): StoredSession | null {
   try {
-    const raw = localStorage.getItem(getStorageKey(apiKey))
+    const raw = localStorage.getItem(getStorageKey(apiBaseUrl))
     if (!raw) return null
 
     const data = JSON.parse(raw) as StoredSession
@@ -32,13 +30,10 @@ export function loadSession(apiKey: string | null): StoredSession | null {
   }
 }
 
-export function saveSession(
-  apiKey: string | null,
-  session: StoredSession,
-): void {
+export function saveSession(apiBaseUrl: string, session: StoredSession): void {
   try {
     localStorage.setItem(
-      getStorageKey(apiKey),
+      getStorageKey(apiBaseUrl),
       JSON.stringify({
         view: session.view,
         messages: sanitizeMessages(session.messages),
@@ -49,9 +44,9 @@ export function saveSession(
   }
 }
 
-export function clearSession(apiKey: string | null): void {
+export function clearSession(apiBaseUrl: string): void {
   try {
-    localStorage.removeItem(getStorageKey(apiKey))
+    localStorage.removeItem(getStorageKey(apiBaseUrl))
   } catch {
     // ignore
   }

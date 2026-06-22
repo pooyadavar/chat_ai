@@ -3,8 +3,7 @@ import { App } from './App'
 import fontStyles from './styles/fonts.css?inline'
 import appStyles from './styles.module.css?inline'
 import { DEFAULT_CONFIG, type FaqItem, type RayaConfig, type RayaWidgetConfig } from './types'
-
-const DEFAULT_API_BASE = 'http://localhost:3001'
+import { resolveLauncherConfig } from './utils/launcherConfig'
 
 const HOST_STYLES = `
 :host {
@@ -16,18 +15,6 @@ const HOST_STYLES = `
 `
 
 const FONT_STYLE_ID = 'raya-widget-fonts'
-
-function getCurrentScript(): HTMLScriptElement | null {
-  if (document.currentScript instanceof HTMLScriptElement) {
-    return document.currentScript
-  }
-
-  return (
-    document.querySelector<HTMLScriptElement>('script[data-api-key]') ??
-    document.querySelector<HTMLScriptElement>('script[src*="main"]') ??
-    document.querySelector<HTMLScriptElement>('script[src*="raya"]')
-  )
-}
 
 function pickDefined<T extends Record<string, unknown>>(source: T | null | undefined): Partial<T> {
   if (!source) return {}
@@ -48,46 +35,50 @@ function normalizeFaqs(faqs: FaqItem[] | undefined): FaqItem[] | undefined {
   }))
 }
 
-/** Priority: defaults → window.RAYA_CONFIG → API response */
+function normalizeApiBaseUrl(url: string): string {
+  return url.replace(/\/$/, '')
+}
+
+/** Priority: defaults → window.RAYA_CONFIG */
 export function mergeConfig(
   defaults: RayaWidgetConfig,
   local?: Partial<RayaConfig> | null,
-  remote?: Partial<RayaConfig> | null,
 ): RayaWidgetConfig {
   const localClean = pickDefined(local)
-  const remoteClean = pickDefined(remote)
 
-  return {
+  const merged = {
     ...defaults,
     ...localClean,
-    ...remoteClean,
-    apiKey: remote?.apiKey ?? local?.apiKey ?? defaults.apiKey,
-    faqs: normalizeFaqs(remoteClean.faqs) ?? normalizeFaqs(localClean.faqs) ?? defaults.faqs,
+    apiBaseUrl: normalizeApiBaseUrl(localClean.apiBaseUrl ?? defaults.apiBaseUrl),
+    faqs: normalizeFaqs(localClean.faqs) ?? defaults.faqs,
+    launcher: resolveLauncherConfig({
+      position: localClean.position ?? defaults.position,
+      launcherSize: localClean.launcherSize,
+      launcher: {
+        ...defaults.launcher,
+        ...local?.launcher,
+      },
+    }),
+  }
+
+  return {
+    ...merged,
+    position: merged.launcher.position,
   }
 }
 
-async function fetchRemoteConfig(
-  apiBaseUrl: string,
-  apiKey: string,
-): Promise<Partial<RayaConfig> | null> {
+async function pingBackend(apiBaseUrl: string): Promise<boolean> {
   try {
-    const base = apiBaseUrl.replace(/\/$/, '')
-    const url = `${base}/v1/widget/init?apiKey=${encodeURIComponent(apiKey)}`
-    const response = await fetch(url, {
+    const response = await fetch(`${apiBaseUrl}/health`, {
       method: 'GET',
       headers: { Accept: 'application/json' },
     })
-
-    if (!response.ok) return null
-
-    const data = (await response.json()) as Partial<RayaConfig>
-    return data
+    return response.ok
   } catch {
-    return null
+    return false
   }
 }
 
-/** @font-face inside Shadow DOM is unreliable — register fonts on document */
 function injectGlobalFonts(): void {
   if (document.getElementById(FONT_STYLE_ID)) return
 
@@ -118,27 +109,15 @@ function mountWidget(config: RayaWidgetConfig): void {
 }
 
 async function bootstrap(): Promise<void> {
-  const script = getCurrentScript()
-  const scriptApiKey = script?.getAttribute('data-api-key') ?? null
   const localConfig = window.RAYA_CONFIG ?? null
+  const config = mergeConfig(DEFAULT_CONFIG, localConfig)
 
-  const apiKey =
-    scriptApiKey ?? localConfig?.apiKey ?? DEFAULT_CONFIG.apiKey
-
-  const apiBaseUrl =
-    localConfig?.apiBaseUrl ?? DEFAULT_CONFIG.apiBaseUrl ?? DEFAULT_API_BASE
-
-  let remoteConfig: Partial<RayaConfig> | null = null
-
-  if (apiKey) {
-    remoteConfig = await fetchRemoteConfig(apiBaseUrl, apiKey)
+  const backendOk = await pingBackend(config.apiBaseUrl)
+  if (!backendOk) {
+    console.warn(
+      `[Raya] Backend not reachable at ${config.apiBaseUrl}. Chat will use fallback replies.`,
+    )
   }
-
-  const config = mergeConfig(
-    { ...DEFAULT_CONFIG, apiKey, apiBaseUrl },
-    localConfig,
-    remoteConfig,
-  )
 
   mountWidget(config)
 }

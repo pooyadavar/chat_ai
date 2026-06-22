@@ -1,6 +1,9 @@
 window.RAYA_CONFIG = {
-  apiKey: 'demo-key-123',
+  // آدرس بک‌اند — dev: localhost | production: آدرس سرور
+  // apiBaseUrl: 'http://localhost:3001',
+  // apiBaseUrl: 'https://api.yourcompany.com',
   apiBaseUrl: 'http://localhost:3001',
+
   primaryColor: '#CB2957',
   position: 'bottom-right',
   fontFamily: "'IRANSansX', Tahoma, sans-serif",
@@ -10,7 +13,19 @@ window.RAYA_CONFIG = {
   launcherLabel: 'پشتیبان هوشمند',
   headerTitle: 'پشتیبان هوشمند رایا',
 
-  // سوالات رایج — هر آیتم: عنوان، توضیح کوتاه، پاسخ ربات
+  launcher: {
+    size: 56,
+    sizeMobile: 48,
+    sizeTablet: 52,
+    sizeDesktop: 50,
+    position: 'bottom-right',
+    positionMobile: 'bottom-right',
+    positionTablet: 'bottom-left',
+    positionDesktop: 'bottom-left',
+    offsetBottom: 20,
+    offsetSide: 20,
+  },
+
   faqs: [
     {
       id: 'track-order',

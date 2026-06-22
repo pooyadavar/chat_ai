@@ -3,6 +3,7 @@ import { LauncherButton } from './components/LauncherButton'
 import { ChatWindow } from './components/ChatWindow'
 import { useMessageStream } from './hooks/useMessageStream'
 import { clearSession, loadSession, saveSession } from './utils/storage'
+import { launcherToCssVars, positionToSide } from './utils/launcherConfig'
 import type { ChatMessage, FaqItem, RayaWidgetConfig } from './types'
 import styles from './styles.module.css'
 
@@ -35,11 +36,12 @@ function configToCssVars(config: RayaWidgetConfig): Record<string, string> {
     '--raya-primary-hover': darkenHex(primary),
     '--raya-primary-light': `color-mix(in srgb, ${primary} 12%, white)`,
     '--raya-font-family': config.fontFamily,
+    ...launcherToCssVars(config.launcher),
   }
 }
 
 export function App({ config }: AppProps) {
-  const stored = config.enableChatHistory ? loadSession(config.apiKey) : null
+  const stored = config.enableChatHistory ? loadSession(config.apiBaseUrl) : null
 
   const [isOpen, setIsOpen] = useState(false)
   const [view, setView] = useState<'faq' | 'chat'>(stored?.view ?? 'faq')
@@ -47,11 +49,7 @@ export function App({ config }: AppProps) {
   const [isReplying, setIsReplying] = useState(false)
 
   const themeStyle = useMemo(() => configToCssVars(config), [config])
-
-  const positionClass =
-    config.position === 'bottom-left'
-      ? styles.positionBottomLeft
-      : styles.positionBottomRight
+  const { launcher } = config
 
   const { sendMessage, clearTimers } = useMessageStream(
     (updater) => {
@@ -72,12 +70,12 @@ export function App({ config }: AppProps) {
     if (!config.enableChatHistory) return
 
     if (messages.length === 0 && view === 'faq') {
-      clearSession(config.apiKey)
+      clearSession(config.apiBaseUrl)
       return
     }
 
-    saveSession(config.apiKey, { messages, view })
-  }, [messages, view, config.apiKey, config.enableChatHistory])
+    saveSession(config.apiBaseUrl, { messages, view })
+  }, [messages, view, config.apiBaseUrl, config.enableChatHistory])
 
   const handleToggle = useCallback(() => {
     setIsOpen((prev) => !prev)
@@ -94,9 +92,9 @@ export function App({ config }: AppProps) {
     setIsReplying(false)
 
     if (config.enableChatHistory) {
-      clearSession(config.apiKey)
+      clearSession(config.apiBaseUrl)
     }
-  }, [clearTimers, config.apiKey, config.enableChatHistory])
+  }, [clearTimers, config.apiBaseUrl, config.enableChatHistory])
 
   const handleFaqSelect = useCallback(
     (faq: FaqItem) => {
@@ -116,9 +114,11 @@ export function App({ config }: AppProps) {
 
   return (
     <div
-      className={`${styles.widget} ${positionClass}`}
+      className={styles.widget}
       style={themeStyle}
-      data-api-key={config.apiKey ?? undefined}
+      data-launcher-pos-mobile={positionToSide(launcher.positionMobile)}
+      data-launcher-pos-tablet={positionToSide(launcher.positionTablet)}
+      data-launcher-pos-desktop={positionToSide(launcher.positionDesktop)}
     >
       <ChatWindow
         config={config}
